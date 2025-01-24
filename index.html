@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Split Code Editor</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #ddd;
+        }
+        #tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+            border-right: 1px solid #ddd;
+        }
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+            border-bottom: 2px solid #007BFF;
+        }
+        textarea {
+            flex: 1;
+            width: 100%;
+            resize: none;
+            font-family: monospace;
+            font-size: 14px;
+            border: none;
+            outline: none;
+            padding: 10px;
+            display: none;
+        }
+        textarea.active {
+            display: block;
+        }
+        #preview {
+            flex: 1;
+            background-color: #f9f9f9;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Editor Container -->
+    <div id="editor-container">
+        <div id="tabs">
+            <div class="tab active" data-tab="html">HTML</div>
+            <div class="tab" data-tab="css">CSS</div>
+            <div class="tab" data-tab="js">JavaScript</div>
+        </div>
+        <textarea id="html" class="active" placeholder="Enter your HTML code here..."></textarea>
+        <textarea id="css" placeholder="Enter your CSS code here..."></textarea>
+        <textarea id="js" placeholder="Enter your JavaScript code here..."></textarea>
+    </div>
+
+    <!-- Preview Container -->
+    <div id="preview">
+        <iframe id="output"></iframe>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const textareas = document.querySelectorAll('textarea');
+        const iframeOutput = document.getElementById('output');
+
+        // Switch between tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                textareas.forEach(ta => ta.classList.remove('active'));
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Update the iframe preview
+        textareas.forEach(textarea => {
+            textarea.addEventListener('input', updatePreview);
+        });
+
+        function updatePreview() {
+            const html = document.getElementById('html').value;
+            const css = `<style>${document.getElementById('css').value}</style>`;
+            const js = `<script>${document.getElementById('js').value}<\/script>`;
+            const iframeDoc = iframeOutput.contentDocument || iframeOutput.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(html + css + js);
+            iframeDoc.close();
+        }
+    </script>
+</body>
+</html>
