@@ -7,17 +7,10 @@
     <style>
         body {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-        }
-        #editor-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border-right: 2px solid #ddd;
-            min-width: 300px;
         }
         #tabs {
             display: flex;
@@ -36,6 +29,15 @@
             font-weight: bold;
             border-bottom: 2px solid #007BFF;
         }
+        #editor-container, #preview-container {
+            flex: 1;
+            display: none;
+            overflow: auto;
+        }
+        #editor-container.active, #preview-container.active {
+            display: flex;
+            flex-direction: column;
+        }
         textarea {
             flex: 1;
             width: 100%;
@@ -45,73 +47,62 @@
             border: none;
             outline: none;
             padding: 10px;
-            display: none;
-        }
-        textarea.active {
-            display: block;
-        }
-        #preview {
-            flex: 2;
-            background-color: #f9f9f9;
-            min-width: 300px;
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-            #editor-container, #preview {
-                flex: 1;
-                min-width: unset;
-                min-height: 300px;
-            }
-            #editor-container {
-                border-right: none;
-                border-bottom: 2px solid #ddd;
-            }
-        }
     </style>
 </head>
 <body>
+    <!-- Tabs -->
+    <div id="tabs">
+        <div class="tab active" data-tab="html">HTML</div>
+        <div class="tab" data-tab="css">CSS</div>
+        <div class="tab" data-tab="js">JavaScript</div>
+        <div class="tab" data-tab="preview">תצוגה מקדימה</div>
+    </div>
+
     <!-- Editor Container -->
-    <div id="editor-container">
-        <div id="tabs">
-            <div class="tab active" data-tab="html">HTML</div>
-            <div class="tab" data-tab="css">CSS</div>
-            <div class="tab" data-tab="js">JavaScript</div>
-        </div>
-        <textarea id="html" class="active" placeholder="Enter your HTML code here..."></textarea>
-        <textarea id="css" placeholder="Enter your CSS code here..."></textarea>
-        <textarea id="js" placeholder="Enter your JavaScript code here..."></textarea>
+    <div id="editor-container" class="active">
+        <textarea id="html" placeholder="Enter your HTML code here..."></textarea>
+        <textarea id="css" placeholder="Enter your CSS code here..." style="display: none;"></textarea>
+        <textarea id="js" placeholder="Enter your JavaScript code here..." style="display: none;"></textarea>
     </div>
 
     <!-- Preview Container -->
-    <div id="preview">
+    <div id="preview-container">
         <iframe id="output"></iframe>
     </div>
 
     <script>
         const tabs = document.querySelectorAll('.tab');
+        const editorContainer = document.getElementById('editor-container');
+        const previewContainer = document.getElementById('preview-container');
         const textareas = document.querySelectorAll('textarea');
         const iframeOutput = document.getElementById('output');
 
-        // Switch between tabs
+        // Switch tabs
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
-                textareas.forEach(ta => ta.classList.remove('active'));
-                document.getElementById(tab.dataset.tab).classList.add('active');
+                if (tab.dataset.tab === 'preview') {
+                    editorContainer.classList.remove('active');
+                    previewContainer.classList.add('active');
+                } else {
+                    previewContainer.classList.remove('active');
+                    editorContainer.classList.add('active');
+
+                    textareas.forEach(ta => ta.style.display = 'none');
+                    document.getElementById(tab.dataset.tab).style.display = 'block';
+                }
             });
         });
 
-        // Update the iframe preview
+        // Update iframe preview
         textareas.forEach(textarea => {
             textarea.addEventListener('input', updatePreview);
         });
