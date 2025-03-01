@@ -80,13 +80,38 @@
             color: white;
         }
 
-        .delete-btn {
+        .project-item-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .rename-btn, .delete-btn {
             background: none;
             border: none;
-            color: #ff3b30;
             cursor: pointer;
             font-size: 18px;
+            padding: 4px;
             transition: color 0.3s ease;
+        }
+
+        .rename-btn {
+            color: #007aff;
+            margin-right: 8px;
+        }
+
+        .rename-btn:hover {
+            color: #0056b3;
+        }
+
+        .delete-btn {
+            color: #ff3b30;
         }
 
         .delete-btn:hover {
@@ -284,32 +309,85 @@
                 }
             }
 
+            function renameProject(oldName) {
+                const newName = prompt('הכנס שם חדש לפרויקט:', oldName);
+                if (newName && newName !== oldName) {
+                    // שמירת תוכן הפרויקט
+                    const projectContent = projects[oldName];
+                    // הסרת הפרויקט הישן
+                    delete projects[oldName];
+                    // יצירת פרויקט חדש עם השם החדש
+                    projects[newName] = projectContent;
+                    // עדכון הפרויקט הנוכחי אם הוא זה ששונה
+                    if (currentProject === oldName) {
+                        currentProject = newName;
+                    }
+                    // שמירה ורענון הרשימה
+                    localStorage.setItem('projects', JSON.stringify(projects));
+                    loadProjects();
+                }
+            }
+
             function loadProjects() {
                 projectList.innerHTML = "";
                 Object.keys(projects).forEach(name => {
                     const div = document.createElement("div");
                     div.classList.add("project-item");
+                    if (name === currentProject) {
+                        div.classList.add("active");
+                    }
+                    
                     div.innerHTML = `
-                        ${name}
-                        <button class="delete-btn"><i class="material-icons">delete</i></button>
+                        <span class="project-item-name">${name}</span>
+                        <div class="project-actions">
+                            <button class="rename-btn" title="שנה שם"><i class="material-icons">edit</i></button>
+                            <button class="delete-btn" title="מחק פרויקט"><i class="material-icons">delete</i></button>
+                        </div>
                     `;
+
+                    div.querySelector('.rename-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        renameProject(name);
+                    });
 
                     div.querySelector('.delete-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
-                        delete projects[name];
-                        localStorage.setItem('projects', JSON.stringify(projects));
-                        loadProjects();
+                        if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${name}"?`)) {
+                            delete projects[name];
+                            localStorage.setItem('projects', JSON.stringify(projects));
+                            
+                            // אם הפרויקט הנוכחי נמחק, עבור לפרויקט אחר אם קיים
+                            if (currentProject === name) {
+                                const remainingProjects = Object.keys(projects);
+                                if (remainingProjects.length > 0) {
+                                    currentProject = remainingProjects[0];
+                                    editors.html.setValue(projects[currentProject].html || '');
+                                    editors.css.setValue(projects[currentProject].css || '');
+                                    editors.js.setValue(projects[currentProject].js || '');
+                                } else {
+                                    currentProject = null;
+                                    editors.html.setValue('');
+                                    editors.css.setValue('');
+                                    editors.js.setValue('');
+                                }
+                            }
+                            
+                            loadProjects();
+                        }
                     });
 
-                    div.addEventListener("click", function () {
-                        document.querySelectorAll(".project-item").forEach(item => item.classList.remove("active"));
-                        div.classList.add("active");
-                        currentProject = name;
-                        editors.html.setValue(projects[name].html || '');
-                        editors.css.setValue(projects[name].css || '');
-                        editors.js.setValue(projects[name].js || '');
-                        switchTab('html');
+                    div.addEventListener("click", function (e) {
+                        if (!e.target.closest('.rename-btn') && !e.target.closest('.delete-btn')) {
+                            document.querySelectorAll(".project-item").forEach(item => item.classList.remove("active"));
+                            div.classList.add("active");
+                            currentProject = name;
+                            editors.html.setValue(projects[name].html || '');
+                            editors.css.setValue(projects[name].css || '');
+                            editors.js.setValue(projects[name].js || '');
+                            switchTab('html');
+                        }
                     });
+                    
                     projectList.appendChild(div);
                 });
             }
@@ -319,7 +397,12 @@
                 if (projectName) {
                     projects[projectName] = { html: '', css: '', js: '' };
                     localStorage.setItem('projects', JSON.stringify(projects));
+                    currentProject = projectName;
+                    editors.html.setValue('');
+                    editors.css.setValue('');
+                    editors.js.setValue('');
                     loadProjects();
+                    switchTab('html');
                 }
             });
 
