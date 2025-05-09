@@ -1,438 +1,257 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="continuous.png">
-    <title>עורך הקוד</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/theme/neo.min.css">
-    <style>
-        /* גופן כללי */
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* סרגל צד */
-        #sidebar {
-            width: 280px;
-            background-color: #ffffff;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            padding: 16px;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        #sidebar button {
-            background-color: #007aff;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        #sidebar button:hover {
-            background-color: #0063cc;
-        }
-
-        #sidebar button i {
-            margin-right: 8px;
-        }
-
-        #project-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .project-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            background-color: #f8f8f8;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .project-item:hover {
-            background-color: #e8e8e8;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .project-item.active {
-            background-color: #007aff;
-            color: white;
-        }
-
-        .project-item-name {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .project-actions {
-            display: flex;
-            align-items: center;
-        }
-
-        .rename-btn, .delete-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 4px;
-            transition: color 0.3s ease;
-        }
-
-        .rename-btn {
-            color: #007aff;
-            margin-right: 8px;
-        }
-
-        .rename-btn:hover {
-            color: #0056b3;
-        }
-
-        .delete-btn {
-            color: #ff3b30;
-        }
-
-        .delete-btn:hover {
-            color: #d70000;
-        }
-
-        /* תוכן ראשי */
-        #main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #ffffff;
-            border-radius: 12px;
-            margin: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            height: calc(100vh - 32px);
-        }
-
-        /* לשוניות - קבועות בחלק העליון */
-        #tabs {
-            display: flex;
-            background-color: #f8f8f8;
-            padding: 8px;
-            border-bottom: 1px solid #e0e0e0;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            cursor: pointer;
-            color: #666666;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            border-radius: 8px;
-            margin: 0 4px;
-        }
-
-        .tab:hover {
-            background-color: #e0e0e0;
-        }
-
-        .tab.active {
-            color: #007aff;
-            background-color: #ffffff;
-            font-weight: bold;
-        }
-
-        /* עורך ותצוגה מקדימה */
-        #editor-container, #preview-container {
-            flex: 1;
-            display: none;
-            padding: 16px;
-            background-color: #ffffff;
-            overflow-y: auto;
-            height: calc(100% - 56px); /* גובה פחות גובה הלשוניות */
-        }
-
-        #editor-container.active, #preview-container.active {
-            display: block;
-        }
-
-        .CodeMirror {
-            height: auto;
-            min-height: 400px;
-            max-height: calc(100vh - 120px);
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Menlo', 'Consolas', monospace;
-            font-size: 14px;
-        }
-
-        iframe {
-            width: 100%;
-            height: calc(100vh - 120px);
-            border: none;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>עורך הקוד</title>
+  <link rel="icon" href="continuous.png">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/theme/neo.min.css">
+  <style>
+    :root {
+      --primary: #007aff;
+      --primary-dark: #0063cc;
+      --danger: #ff3b30;
+      --bg-light: #f8f8f8;
+      --bg-page: #f0f0f0;
+      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: var(--font-main); background: var(--bg-page);
+      display: grid; grid-template-columns: auto 1fr; height: 100vh; overflow: hidden;
+    }
+    nav#sidebar {
+      background: #fff; padding: 1rem; overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      transition: transform .3s ease;
+    }
+    @media(max-width: 768px){
+      nav#sidebar { position: absolute; z-index: 20; transform: translateX(-100%); }
+      nav#sidebar.open { transform: translateX(0); }
+    }
+    nav#sidebar button#toggle-sidebar {
+      background: none; border: none; font-size: 24px; margin-bottom: 1rem;
+      cursor: pointer; color: var(--primary);
+    }
+    nav#sidebar button#new-project {
+      width: 100%; background: var(--primary); color: #fff; border: none;
+      padding: .75rem; border-radius: .5rem; display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; cursor: pointer;
+      transition: background .3s;
+    }
+    nav#sidebar button#new-project:hover { background: var(--primary-dark); }
+    #project-list { list-style: none; padding: 0; margin: 1rem 0 0; }
+    #project-list li {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .75rem; border-radius: .5rem; background: var(--bg-light);
+      margin-bottom: .5rem; cursor: pointer;
+      transition: background .3s, box-shadow .3s;
+    }
+    #project-list li.active {
+      background: var(--primary); color: #fff;
+    }
+    #project-list li:hover {
+      background: #e8e8e8; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .project-actions button {
+      background: none; border: none; cursor: pointer; font-size: 1.2rem;
+      margin-left: .5rem;
+    }
+    .project-actions button.rename { color: var(--primary); }
+    .project-actions button.delete { color: var(--danger); }
+    main#main-content {
+      background: #fff; margin: 1rem; border-radius: .75rem;
+      display: grid; grid-template-rows: auto 1fr; overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    #tabs {
+      display: flex; background: var(--bg-light); padding: .5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .tab {
+      flex: 1; text-align: center; padding: .75rem; cursor: pointer;
+      color: #666; font-weight: 500; border-radius: .5rem;
+      transition: background .3s, color .3s;
+    }
+    .tab.active { background: #fff; color: var(--primary); font-weight: 700; }
+    .tab:hover { background: #e0e0e0; }
+    #editor, #preview {
+      padding: 1rem; overflow: auto;
+    }
+    .CodeMirror { height: 100%; border-radius: .5rem; }
+    #output { width: 100%; height: 100%; border: none; }
+  </style>
 </head>
 <body>
-    <div id="sidebar">
-        <button id="new-project-btn">
-            <i class="material-icons">add</i>
-            פרויקט חדש
-        </button>
-        <div id="project-list"></div>
+  <nav id="sidebar" aria-label="פרויקטים">
+    <button id="toggle-sidebar" aria-label="פתח/סגור תפריט">
+      <i class="material-icons">menu</i>
+    </button>
+    <button id="new-project" aria-label="צור פרויקט חדש">
+      <i class="material-icons">add</i> פרויקט חדש
+    </button>
+    <ul id="project-list"></ul>
+  </nav>
+
+  <main id="main-content">
+    <div id="tabs" role="tablist">
+      <div class="tab active" data-tab="html" role="tab">HTML</div>
+      <div class="tab" data-tab="css" role="tab">CSS</div>
+      <div class="tab" data-tab="js" role="tab">JS</div>
+      <div class="tab" data-tab="preview" role="tab">תצוגה</div>
     </div>
-    <div id="main-content">
-        <div id="tabs">
-            <div class="tab active" data-tab="html">HTML</div>
-            <div class="tab" data-tab="css">CSS</div>
-            <div class="tab" data-tab="js">JavaScript</div>
-            <div class="tab" data-tab="preview">תצוגה מקדימה</div>
-        </div>
-        <div id="editor-container" class="active">
-            <textarea id="html" style="display: none;"></textarea>
-            <textarea id="css" style="display: none;"></textarea>
-            <textarea id="js" style="display: none;"></textarea>
-        </div>
-        <div id="preview-container">
-            <iframe id="output"></iframe>
-        </div>
+    <div id="editor">
+      <textarea id="html"></textarea>
+      <textarea id="css"></textarea>
+      <textarea id="js"></textarea>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/htmlmixed/htmlmixed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/javascript/javascript.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const textareas = {
-                html: document.getElementById("html"),
-                css: document.getElementById("css"),
-                js: document.getElementById("js")
-            };
-            const output = document.getElementById("output");
-            const tabs = document.querySelectorAll(".tab");
-            const projectList = document.getElementById("project-list");
-            const newProjectBtn = document.getElementById("new-project-btn");
-            const editorContainer = document.getElementById("editor-container");
-            const previewContainer = document.getElementById("preview-container");
+    <div id="preview"><iframe id="output" title="תצוגת פרויקט"></iframe></div>
+  </main>
 
-            let projects = JSON.parse(localStorage.getItem('projects')) || {};
-            let currentProject = null;
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/javascript/javascript.min.js"></script>
+  <script>
+    (() => {
+      const LS_KEY = 'myCodeProjects';
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('toggle-sidebar');
+      const newBtn = document.getElementById('new-project');
+      const projList = document.getElementById('project-list');
+      const tabs = [...document.querySelectorAll('.tab')];
+      const editors = {};
 
-            // הגדרת עורכי CodeMirror
-            const editors = {
-                html: CodeMirror.fromTextArea(textareas.html, {
-                    mode: "htmlmixed",
-                    theme: "neo",
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    viewportMargin: Infinity
-                }),
-                css: CodeMirror.fromTextArea(textareas.css, {
-                    mode: "css",
-                    theme: "neo",
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    viewportMargin: Infinity
-                }),
-                js: CodeMirror.fromTextArea(textareas.js, {
-                    mode: "javascript",
-                    theme: "neo",
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    viewportMargin: Infinity
-                }),
-            };
+      let projects = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      let current = null;
+      const debounce = (fn, delay=300) => {
+        let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), delay); };
+      };
 
-            function switchTab(tabName) {
-                tabs.forEach(tab => tab.classList.remove('active'));
-                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-                if (tabName === 'preview') {
-                    editorContainer.classList.remove('active');
-                    previewContainer.classList.add('active');
-                    updatePreview();
-                } else {
-                    editorContainer.classList.add('active');
-                    previewContainer.classList.remove('active');
-                    Object.keys(editors).forEach(key => {
-                        editors[key].getWrapperElement().style.display = key === tabName ? 'block' : 'none';
-                    });
-                    // רענון העורך כדי להבטיח תצוגה נכונה לאחר מעבר בין לשוניות
-                    editors[tabName].refresh();
-                }
-            }
-
-            function updatePreview() {
-                const html = editors.html.getValue();
-                const css = `<style>${editors.css.getValue()}</style>`;
-                const js = `<script>${editors.js.getValue()}<\/script>`;
-                const iframeDocument = output.contentDocument;
-                iframeDocument.open();
-                iframeDocument.write(html + css + js);
-                iframeDocument.close();
-            }
-
-            function saveProject() {
-                if (currentProject) {
-                    projects[currentProject] = {
-                        html: editors.html.getValue(),
-                        css: editors.css.getValue(),
-                        js: editors.js.getValue()
-                    };
-                    localStorage.setItem('projects', JSON.stringify(projects));
-                }
-            }
-
-            function renameProject(oldName) {
-                const newName = prompt('הכנס שם חדש לפרויקט:', oldName);
-                if (newName && newName !== oldName) {
-                    // שמירת תוכן הפרויקט
-                    const projectContent = projects[oldName];
-                    // הסרת הפרויקט הישן
-                    delete projects[oldName];
-                    // יצירת פרויקט חדש עם השם החדש
-                    projects[newName] = projectContent;
-                    // עדכון הפרויקט הנוכחי אם הוא זה ששונה
-                    if (currentProject === oldName) {
-                        currentProject = newName;
-                    }
-                    // שמירה ורענון הרשימה
-                    localStorage.setItem('projects', JSON.stringify(projects));
-                    loadProjects();
-                }
-            }
-
-            function loadProjects() {
-                projectList.innerHTML = "";
-                Object.keys(projects).forEach(name => {
-                    const div = document.createElement("div");
-                    div.classList.add("project-item");
-                    if (name === currentProject) {
-                        div.classList.add("active");
-                    }
-                    
-                    div.innerHTML = `
-                        <span class="project-item-name">${name}</span>
-                        <div class="project-actions">
-                            <button class="rename-btn" title="שנה שם"><i class="material-icons">edit</i></button>
-                            <button class="delete-btn" title="מחק פרויקט"><i class="material-icons">delete</i></button>
-                        </div>
-                    `;
-
-                    div.querySelector('.rename-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        renameProject(name);
-                    });
-
-                    div.querySelector('.delete-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${name}"?`)) {
-                            delete projects[name];
-                            localStorage.setItem('projects', JSON.stringify(projects));
-                            
-                            // אם הפרויקט הנוכחי נמחק, עבור לפרויקט אחר אם קיים
-                            if (currentProject === name) {
-                                const remainingProjects = Object.keys(projects);
-                                if (remainingProjects.length > 0) {
-                                    currentProject = remainingProjects[0];
-                                    editors.html.setValue(projects[currentProject].html || '');
-                                    editors.css.setValue(projects[currentProject].css || '');
-                                    editors.js.setValue(projects[currentProject].js || '');
-                                } else {
-                                    currentProject = null;
-                                    editors.html.setValue('');
-                                    editors.css.setValue('');
-                                    editors.js.setValue('');
-                                }
-                            }
-                            
-                            loadProjects();
-                        }
-                    });
-
-                    div.addEventListener("click", function (e) {
-                        if (!e.target.closest('.rename-btn') && !e.target.closest('.delete-btn')) {
-                            document.querySelectorAll(".project-item").forEach(item => item.classList.remove("active"));
-                            div.classList.add("active");
-                            currentProject = name;
-                            editors.html.setValue(projects[name].html || '');
-                            editors.css.setValue(projects[name].css || '');
-                            editors.js.setValue(projects[name].js || '');
-                            switchTab('html');
-                        }
-                    });
-                    
-                    projectList.appendChild(div);
-                });
-            }
-
-            newProjectBtn.addEventListener('click', () => {
-                const projectName = prompt('הכנס שם לפרויקט חדש:');
-                if (projectName) {
-                    projects[projectName] = { html: '', css: '', js: '' };
-                    localStorage.setItem('projects', JSON.stringify(projects));
-                    currentProject = projectName;
-                    editors.html.setValue('');
-                    editors.css.setValue('');
-                    editors.js.setValue('');
-                    loadProjects();
-                    switchTab('html');
-                }
-            });
-
-            Object.values(editors).forEach(editor => {
-                editor.on('change', () => {
-                    saveProject();
-                    if (document.querySelector('[data-tab="preview"]').classList.contains('active')) {
-                        updatePreview();
-                    }
-                });
-            });
-
-            tabs.forEach(tab => {
-                tab.addEventListener("click", function () {
-                    switchTab(tab.dataset.tab);
-                });
-            });
-
-            loadProjects();
-            if (Object.keys(projects).length > 0) {
-                currentProject = Object.keys(projects)[0];
-                editors.html.setValue(projects[currentProject].html || '');
-                editors.css.setValue(projects[currentProject].css || '');
-                editors.js.setValue(projects[currentProject].js || '');
-            }
-            
-            // רענון לכל העורכים בטעינה ראשונית
-            Object.values(editors).forEach(editor => editor.refresh());
+      // init CodeMirror
+      ['html','css','js'].forEach(mode => {
+        const ta = document.getElementById(mode);
+        editors[mode] = CodeMirror.fromTextArea(ta, {
+          mode: mode==='js'? 'javascript' : mode,
+          theme: 'neo', lineNumbers:true, lineWrapping:true, viewportMargin:Infinity
         });
-    </script>
+      });
+
+      // שמירה אוטומטית
+      const save = debounce(() => {
+        if (!current) return;
+        projects[current] = {
+          html: editors.html.getValue(),
+          css: editors.css.getValue(),
+          js: editors.js.getValue()
+        };
+        localStorage.setItem(LS_KEY, JSON.stringify(projects));
+        if (activeTab==='preview') updatePreview();
+      });
+
+      // מעבר לשונית
+      let activeTab = 'html';
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t=>t.classList.remove('active'));
+          tab.classList.add('active');
+          activeTab = tab.dataset.tab;
+          document.getElementById(activeTab==='preview'?'preview':'editor')
+                  .style.display = 'block';
+          document.getElementById(activeTab==='preview'?'editor':'preview')
+                  .style.display = 'none';
+          if (activeTab !== 'preview') editors[activeTab].refresh();
+          else updatePreview();
+        });
+      });
+
+      function updatePreview(){
+        const doc = document.getElementById('output').contentDocument;
+        doc.open();
+        doc.write(
+          editors.html.getValue() +
+          `<style>${editors.css.getValue()}</style>` +
+          `<script>${editors.js.getValue()}<\/script>`
+        );
+        doc.close();
+      }
+
+      // טענת רשימת פרויקטים
+      function renderProjects(){
+        projList.innerHTML = '';
+        Object.keys(projects).forEach(name => {
+          const li = document.createElement('li');
+          if (name===current) li.classList.add('active');
+          li.innerHTML = `
+            <span>${name}</span>
+            <div class="project-actions">
+              <button class="rename" data-action="rename" aria-label="שנה שם"><i class="material-icons">edit</i></button>
+              <button class="delete" data-action="delete" aria-label="מחק"><i class="material-icons">delete</i></button>
+            </div>`;
+          li.addEventListener('click', e => {
+            if (e.target.matches('[data-action]')) return;
+            current = name; loadProject(name); renderProjects();
+          });
+          projList.appendChild(li);
+        });
+      }
+
+      // events חדש/מחיקה/שינוי שם
+      projList.addEventListener('click', e => {
+        const action = e.target.closest('[data-action]')?.dataset.action;
+        const name = e.target.closest('li')?.querySelector('span').textContent;
+        if (!action || !name) return;
+        if (action==='delete' && confirm(`למחוק "${name}"?`)){
+          delete projects[name];
+          current = Object.keys(projects)[0] || null;
+          if (current) loadProject(current);
+          renderProjects();
+        }
+        if (action==='rename'){
+          const nn = prompt('שם חדש:', name);
+          if (nn && nn!==name){
+            projects[nn]=projects[name];
+            delete projects[name];
+            if (current===name) current=nn;
+            renderProjects();
+          }
+        }
+        localStorage.setItem(LS_KEY, JSON.stringify(projects));
+      });
+
+      newBtn.addEventListener('click', () => {
+        const name = prompt('שם לפרויקט חדש:');
+        if (!name || projects[name]) return;
+        projects[name] = {html:'',css:'',js:''};
+        current = name; loadProject(name); renderProjects();
+        tabs.find(t=>t.dataset.tab==='html').click();
+      });
+
+      // טעינת תוכן פרויקט
+      function loadProject(name){
+        Object.keys(editors).forEach(key => {
+          editors[key].setValue(projects[name][key] || '');
+        });
+      }
+
+      // חיבור שמירה לאירועי שינוי
+      Object.values(editors).forEach(ed => ed.on('change', save));
+
+      // toggle sidebar on mobile
+      toggleBtn.addEventListener('click', ()=> sidebar.classList.toggle('open'));
+
+      // אתחל
+      if (Object.keys(projects).length){
+        current = Object.keys(projects)[0];
+        loadProject(current);
+      }
+      renderProjects();
+      tabs[0].click();
+    })();
+  </script>
 </body>
 </html>
